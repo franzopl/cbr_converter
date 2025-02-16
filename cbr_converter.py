@@ -9,10 +9,14 @@ def images_to_cbr(folder_path, output_file):
         print(f"A pasta {folder_path} não existe.")
         return
 
-    files = sorted([f for f in folder_path.glob('*') if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.bmp', '.gif')])
+    # Procura por arquivos de imagem em todas as subpastas recursivamente
+    files = sorted([
+        f for f in folder_path.rglob('*')
+        if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
+    ], key=lambda x: (list(x.parts), x.name))  # Ordena por caminho e nome do arquivo
 
     if not files:
-        print("Nenhuma imagem encontrada na pasta.")
+        print("Nenhuma imagem encontrada na pasta ou subpastas.")
         return
 
     # Lista de arquivos para incluir no RAR
