@@ -1,12 +1,15 @@
-# Importa a função images_to_cbr do módulo cbr_converter
+import sys
 from cbr_converter import images_to_cbr
 
-# Define o caminho da pasta onde as imagens estão armazenadas
-# Aqui usamos '.' para indicar a pasta atual
-folder_path = '.'
+def main():
+    if len(sys.argv) < 3:
+        print("Uso: python3 main_converter.py <caminho_da_pasta> <nome_do_arquivo_saida>")
+        sys.exit(1)
 
-# Define o nome do arquivo CBR que você quer criar
-output_file = 'meu_comic.cbr'
+    folder_path = sys.argv[1]
+    output_file = sys.argv[2]
 
-# Chama a função para converter imagens para CBR
-images_to_cbr(folder_path, output_file)
+    images_to_cbr(folder_path, output_file)
+
+if __name__ == "__main__":
+    main()
