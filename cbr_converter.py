@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import patoolib
+import re
 
 def images_to_cbr(folder_path, output_file):
     folder_path = Path(folder_path)
@@ -9,31 +10,34 @@ def images_to_cbr(folder_path, output_file):
         print(f"A pasta {folder_path} não existe.")
         return
 
-    # Function to get a numeric part from filename, ignoring dots
+    # Função para obter a parte numérica do nome do arquivo, ignorando pontos, vírgulas e outros símbolos
     def get_number(filename):
-        import re
-        numbers = re.findall(r'\d+', filename.name.replace('.', ''))
+        numbers = re.findall(r'\d+', ''.join(char for char in filename.name if char.isalnum()))
         return int(numbers[0]) if numbers else 0
 
-    # Search for image files in all subfolders recursively
+    # Procurar por arquivos de imagem em todas as subpastas de forma recursiva
     files = sorted([
         f for f in folder_path.rglob('*')
         if f.is_file() and f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
-    ], key=lambda x: (list(x.parts[:-1]), get_number(x), x.stem.replace('.', '').zfill(3) + x.suffix))
+    ], key=lambda x: (
+        [''.join(char for char in part if char.isalnum()) for part in x.parts[:-1]],  # Limpar nomes de pastas
+        get_number(x), 
+        ''.join(char for char in x.stem if char.isalnum()).zfill(3) + x.suffix  # Limpar nome do arquivo
+    ))
 
     if not files:
         print("Nenhuma imagem encontrada na pasta ou subpastas.")
         return
 
-    # List of files to include in the RAR
+    # Lista de arquivos para incluir no RAR
     file_list = [str(f) for f in files]
 
     try:
-        # Create the CBR (RAR) file with the images
+        # Criar o arquivo CBR (RAR) com as imagens
         patoolib.create_archive(output_file, file_list)
         print(f"Arquivo CBR criado: {output_file}")
     except Exception as e:
         print(f"Erro ao criar o arquivo CBR: {e}")
 
-# Example usage:
+# Exemplo de uso:
 # images_to_cbr('.', 'meu_comic.cbr')
